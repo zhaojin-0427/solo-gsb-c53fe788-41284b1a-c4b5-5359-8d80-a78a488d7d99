@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>双区烘箱曲线试算</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>双区烘箱曲线试算</h1>
+  <p class="subtitle">共享设定温度 · 四区轨迹约束（两区 × 两种响应系数）· 字典序最优 · 10 秒限时</p>
+</header>
+
+<main>
+  <!-- ================= 输入区 ================= -->
+  <section class="card">
+    <h2>① 全局设定</h2>
+    <div class="grid grid-3">
+      <label>烘烤时长 N（分钟，1~24）
+        <input type="number" id="duration" min="1" max="24" step="1" value="10">
+      </label>
+      <label>相邻分钟最大跃变（℃，非负整数）
+        <input type="number" id="maxRamp" min="0" max="300" step="1" value="20">
+      </label>
+      <div class="hint-box">
+        <strong>递推模型</strong>
+        <code>T(t+1) = T(t) + α(U(t+1) − T(t))</code>
+        <strong>热暴露量</strong>
+        <code>E = Σ<sub>t=1..N</sub> max(0, T(t) − 阈值)</code>
+      </div>
+    </div>
+  </section>
+
+  <div class="zones">
+    <section class="card zone-card" id="zoneCard0"></section>
+    <section class="card zone-card" id="zoneCard1"></section>
+  </div>
+
+  <section class="card">
+    <h2>③ 分钟锁定（可选）</h2>
+    <p class="muted">可锁定部分分钟的设定温度（0~300 整数），锁定值同样受最大跃变约束。</p>
+    <div class="grid grid-3" id="locksArea"></div>
+  </section>
+
+  <section class="actions">
+    <button id="solveBtn" class="primary">求解曲线</button>
+    <button id="resetBtn">恢复示例</button>
+    <span id="solveTimer" class="muted"></span>
+  </section>
+
+  <div id="formError" class="form-error hidden"></div>
+
+  <!-- ================= 结果区 ================= -->
+  <section id="resultSection" class="card hidden">
+    <h2>④ 求解结果</h2>
+    <div id="statusBanner" class="banner"></div>
+    <div id="resultMeta" class="result-meta hidden">
+      <span>设定温度总和：<b id="objSum"></b></span>
+      <span>用时：<b id="elapsed"></b></span>
+      <span>状态：<b id="optFlag"></b></span>
+      <button id="saveSnapBtn" class="small">保存当前结果为快照</button>
+    </div>
+    <div id="trajectoryWrap" class="table-wrap"></div>
+  </section>
+
+  <!-- ================= 快照区 ================= -->
+  <section class="card">
+    <h2>⑤ 历史快照</h2>
+    <div class="actions">
+      <button id="refreshSnapBtn" class="small">刷新列表</button>
+    </div>
+    <div class="table-wrap">
+      <table id="snapTable">
+        <thead>
+          <tr><th>#</th><th>名称</th><th>状态</th><th>最优</th><th>设定总和</th>
+              <th>用时(ms)</th><th>保存时间 (UTC)</th><th>操作</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

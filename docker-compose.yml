@@ -1,0 +1,13 @@
+services:
+  oven:
+    build: .
+    image: dual-zone-oven:latest
+    container_name: dual-zone-oven
+    ports:
+      - "8000:8000"
+    volumes:
+      - oven-data:/data
+    restart: unless-stopped
+
+volumes:
+  oven-data:
